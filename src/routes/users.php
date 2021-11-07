@@ -132,30 +132,40 @@
         $DtAdmssn     = date('Y-m-d');
         $ChckTm       = date('H:i:s');
 
-        $sql   = "INSERT INTO `0_usrs` (`Usrnm`, `Psswrd`, `Rfrnc_Prsn`, `UsrTyp_Rfrnc`, `Cndtn`, `Rmvd`, `Lckd`, `DtAdmssn`, `ChckTm`) VALUES(:Usrnm, :Psswrd, :Rfrnc_Prsn, :UsrTyp_Rfrnc, :Cndtn, :Rmvd, :Lckd, :DtAdmssn, :ChckTm);"; 
+        
+        $verify = "SELECT * FROM `0_usrs` WHERE `Usrnm` = '$Usrnm';";
 
         try {
             $db     = new db();
             $db     = $db->connectionDB();
 
+            $validate = $db->query($verify);
+
+            if($validate->rowCount() == 0) {
+
+                $sql   = "INSERT INTO `0_usrs` (`Usrnm`, `Psswrd`, `Rfrnc_Prsn`, `UsrTyp_Rfrnc`, `Cndtn`, `Rmvd`, `Lckd`, `DtAdmssn`, `ChckTm`) VALUES(:Usrnm, :Psswrd, :Rfrnc_Prsn, :UsrTyp_Rfrnc, :Cndtn, :Rmvd, :Lckd, :DtAdmssn, :ChckTm);"; 
+                $result = $db->prepare($sql);
+        
+                $result->bindParam(':Usrnm', $Usrnm);
+                $result->bindParam(':Psswrd', $Psswrd);
+                $result->bindParam(':Rfrnc_Prsn', $Rfrnc_Prsn);
+                $result->bindParam(':UsrTyp_Rfrnc', $UsrTyp_Rfrnc);
+                $result->bindParam(':Cndtn', $Cndtn);
+                $result->bindParam(':Rmvd', $Rmvd);
+                $result->bindParam(':Lckd', $Lckd);
+                $result->bindParam(':DtAdmssn', $DtAdmssn);
+                $result->bindParam(':ChckTm', $ChckTm);
+        
+                $result->execute();
+        
+                echo json_encode("Users save");
+        
+                $result = null; 
+
+            } else {
+                echo json_encode("Users exist");
+            }
             
-            $result = $db->prepare($sql);
-    
-            $result->bindParam(':Usrnm', $Usrnm);
-            $result->bindParam(':Psswrd', $Psswrd);
-            $result->bindParam(':Rfrnc_Prsn', $Rfrnc_Prsn);
-            $result->bindParam(':UsrTyp_Rfrnc', $UsrTyp_Rfrnc);
-            $result->bindParam(':Cndtn', $Cndtn);
-            $result->bindParam(':Rmvd', $Rmvd);
-            $result->bindParam(':Lckd', $Lckd);
-            $result->bindParam(':DtAdmssn', $DtAdmssn);
-            $result->bindParam(':ChckTm', $ChckTm);
-    
-            $result->execute();
-    
-            echo json_encode("Users save");
-    
-            $result = null; 
             $db = null;
         } catch(PDOException $e) {
             echo '{"error": {"text"' . $e->getMessage() . '}';
