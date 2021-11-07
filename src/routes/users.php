@@ -184,26 +184,36 @@
         $Rmvd         = $request->getParam('Rmvd');
         $Lckd         = $request->getParam('Lckd');
 
-        $sql = "UPDATE `0_usrs` SET `Usrnm` = :Usrnm, `Psswrd` = :Psswrd, `Rfrnc_Prsn` = :Rfrnc_Prsn, `UsrTyp_Rfrnc` = :UsrTyp_Rfrnc, `Cndtn` = :Cndtn, `Rmvd` = :Rmvd, `Lckd` = :Lckd WHERE `Rfrnc` = :Rfrnc;";
+        $verify = "SELECT * FROM `0_usrs` WHERE `Usrnm` = '$Usrnm';";
         
         try {
             $db     = new db();
-            $db     = $db->connectionDB();            
-            $result = $db->prepare($sql);
+            $db     = $db->connectionDB();
+            $validate = $db->query($verify);
             
-            $result->bindParam(':Rfrnc', $Rfrnc);
-            $result->bindParam(':Usrnm', $Usrnm);
-            $result->bindParam(':Psswrd', $Psswrd);
-            $result->bindParam(':Rfrnc_Prsn', $Rfrnc_Prsn);
-            $result->bindParam(':UsrTyp_Rfrnc', $UsrTyp_Rfrnc);
-            $result->bindParam(':Cndtn', $Cndtn);
-            $result->bindParam(':Rmvd', $Rmvd);
-            $result->bindParam(':Lckd', $Lckd);
+            if($validate->rowCount() == 0) {
+
+                $sql = "UPDATE `0_usrs` SET `Usrnm` = :Usrnm, `Psswrd` = :Psswrd, `Rfrnc_Prsn` = :Rfrnc_Prsn, `UsrTyp_Rfrnc` = :UsrTyp_Rfrnc, `Cndtn` = :Cndtn, `Rmvd` = :Rmvd, `Lckd` = :Lckd WHERE `Rfrnc` = :Rfrnc;";
+                $result = $db->prepare($sql);
             
-            $result->execute();
-            echo json_encode("Users edit");
+                $result->bindParam(':Rfrnc', $Rfrnc);
+                $result->bindParam(':Usrnm', $Usrnm);
+                $result->bindParam(':Psswrd', $Psswrd);
+                $result->bindParam(':Rfrnc_Prsn', $Rfrnc_Prsn);
+                $result->bindParam(':UsrTyp_Rfrnc', $UsrTyp_Rfrnc);
+                $result->bindParam(':Cndtn', $Cndtn);
+                $result->bindParam(':Rmvd', $Rmvd);
+                $result->bindParam(':Lckd', $Lckd);
+                
+                $result->execute();
+                echo json_encode("Users edit");
 
             $result = null;
+
+            } else {
+                echo json_encode("Users exist");
+            }            
+            
             $db = null;
         } catch(PDOException $e) {
             echo '{"error": {"text"' . $e->getMessage() . '}';
