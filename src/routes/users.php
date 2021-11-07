@@ -22,7 +22,7 @@
      /**
       * Get all record
       */
-    $app->get('/api/users', function(Request $request, Response $response) {
+    $app->get('/api/users_', function(Request $request, Response $response) {
         $sql = "SELECT * FROM `0_usrs`";
         try {
             $db = new db();
@@ -48,7 +48,7 @@
      * Get specific record
      */
 
-    $app->get('/api/users/{Rfrnc}', function(Request $request, Response $response) {
+    $app->get('/api/users_/{Rfrnc}', function(Request $request, Response $response) {
         $Rfrnc = $request->getAttribute('Rfrnc');
         $sql = "SELECT * FROM 0_usrs WHERE Rfrnc = '$Rfrnc' OR `Usrnm` = '" . $Rfrnc . "';";
         try {
@@ -72,6 +72,51 @@
      * POST
      */
 
+    $app->post('/api/users', function(Request $request, Response $response) {
+        $sql = "SELECT * FROM `0_usrs`";
+        try {
+            $db = new db();
+            $db = $db->connectionDB();
+            $result = $db->query($sql);
+
+            if($result->rowCount() > 0) {
+                $usrs = $result->fetchAll(PDO::FETCH_OBJ);
+                echo json_encode($usrs);
+            } else {
+                echo json_encode("No exists users");
+            }
+            
+            $result = null;
+            $db = null;
+        } catch(PDOException $e) {
+            echo '{"error": {"text"' . $e->getMessage() . '}';
+        }
+    });
+    
+    /**
+     * GET
+     * Get specific record
+     */
+
+    $app->post('/api/user/{Rfrnc}', function(Request $request, Response $response) {
+        $Rfrnc = $request->getAttribute('Rfrnc');
+        $sql = "SELECT * FROM 0_usrs WHERE Rfrnc = '$Rfrnc' OR `Usrnm` = '" . $Rfrnc . "';";
+        try {
+            $db = new db();
+            $db = $db->connectionDB();
+            $result = $db->query($sql);
+            if($result->rowCount() > 0) {
+                $usrs = $result->fetchAll(PDO::FETCH_OBJ);
+                echo json_encode($usrs);
+            } else {
+                echo json_encode("No exists users");
+            }
+            $result = null;
+            $db = null;
+        } catch(PDOException $e) {
+            echo '{"error": {"text"' . $e->getMessage() . '}';
+        }
+    });
      /**
       * Record data
       */
@@ -155,6 +200,30 @@
         }
     });
 
+    $app->post('/api/users/delete/{Rfrnc}', function(Request $request, Response $response){
+        $Rfrnc = $request->getAttribute('Rfrnc');
+        $sql   = "DELETE FROM `0_usrs` WHERE `Rfrnc` = $Rfrnc";
+          
+       try{
+         $db     = new db();
+         $db     = $db->connectionDB();
+         $result = $db->prepare($sql);
+        
+         $result->execute();
+     
+         if ($result->rowCount() > 0) {
+           echo json_encode("Record delete.");  
+         }else {
+           echo json_encode("Reference not exists.");
+         }
+     
+         $result = null;
+         $db     = null;
+       }catch(PDOException $e){
+         echo '{"error" : {"text":'.$e->getMessage().'}';
+       }
+    }); 
+
     /**
      * PUT
      */
@@ -162,7 +231,7 @@
      /**
       * Edit specific record
       */
-    $app->put('/api/users/edit_/{Rfrnc}', function(Request $request, Response $response) {
+    $app->put('/api/users/edit/{Rfrnc}', function(Request $request, Response $response) {
 
         $Rfrnc        = $request->getAttribute('Rfrnc');
 

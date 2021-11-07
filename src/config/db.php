@@ -14,6 +14,8 @@
             $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $dbConnection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
+            $dbConnection->exec("set names utf8");
+
             return $dbConnection;
         }
     }
